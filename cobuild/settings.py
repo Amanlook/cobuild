@@ -10,7 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import datetime
+import os
 from pathlib import Path
+from .env_manager import credentials
+DEBUG = credentials.get('debug', False)
+ALLOWED_HOSTS = credentials.get('ALLOWED_HOSTS', ["*"])
+APP_ENV = credentials.get('app_env', None)
+print("Running server with on env -", APP_ENV)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users'
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -77,8 +84,12 @@ WSGI_APPLICATION = 'cobuild.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': credentials.get('db_name'),
+        'USER': credentials.get('db_user'),
+        'PASSWORD': credentials.get('db_password'),
+        'HOST': credentials.get('db_host'),
+        'PORT': '5432',
     }
 }
 
@@ -106,14 +117,57 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
-
 USE_L10N = True
+STATIC_URL = '/cobuild/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
-USE_TZ = True
+from datetime import timedelta
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+        # 'social_core.backends.google.GoogleOAuth2',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=5),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'UPDATE_LAST_LOGIN': False,
+
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+    'JWK_URL': None,
+    'LEEWAY': 0,
+
+    'AUTH_HEADER_TYPES': ('Bearer', "JWT",),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
+
+    'JTI_CLAIM': 'jti',
+
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+    'SLIDING_TOKEN_LIFETIME': datetime.timedelta(minutes=5),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': datetime.timedelta(days=1),
+}
 
 
 # Static files (CSS, JavaScript, Images)
@@ -127,3 +181,46 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DEFAULT_PASS_WORD = "welcome@123"
+AWS_ACCESS_KEY_ID = credentials.get('aws_access_key', 'AKIA2OWK2G6VVEUENXTS')
+AWS_SECRET_ACCESS_KEY = credentials.get(
+    'aws_secret_key', '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')
+AWS_STORAGE_BUCKET_NAME = credentials.get('s3_bucket', 'doctodo-lab')
+AWS_S3_CUSTOM_DOMAIN = credentials.get(
+    's3_custom_domain', 'dr0fp8fjadzf8.cloudfront.net')
+AWS_S3_REGION_NAME = "ap-south-1"
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_DEFAULT_ACL = 'public-read'
+AWS_S3_VERIFY = True
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'no-cache',
+}
+AWS_QUERYSTRING_AUTH = True
+
+AWS_STATIC_LOCATION = 'static'
+STATICFILES_STORAGE = 'cobuild.storage_backends.StaticStorage'
+STATIC_URL = "https://" + \
+    credentials.get('s3_custom_domain',
+                    'dr0fp8fjadzf8.cloudfront.net')+"/static/"
+
+AWS_PUBLIC_MEDIA_LOCATION = credentials.get('s3_folder', '')+'media'
+DEFAULT_FILE_STORAGE = 'cobuild.storage_backends.PublicMediaStorage'
+MEDIA_ROOT = "https://" + \
+    credentials.get('s3_custom_domain',
+                    'dr0fp8fjadzf8.cloudfront.net')+"/media/"
+MEDIA_URL = "https://" + \
+    credentials.get('s3_custom_domain',
+                    'dr0fp8fjadzf8.cloudfront.net')+"/media/"
+AWS_PRIVATE_MEDIA_LOCATION = 'media/private'
+PRIVATE_FILE_STORAGE = 'cobuild.storage_backends.PrivateMediaStorage'
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+BYPASS_OTP = "8080"
+DEFAULT_PASS_WORD = "cobuild@123"
+
+WHITELIST = ['http://localhost:3000', 'http://localhost:3001', "http://localhost:5173"]
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'http://localhost:3001']
+CORS_ORIGIN_WHITELIST = ['http://localhost:3000', 'http://localhost:3001']
