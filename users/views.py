@@ -52,15 +52,20 @@ class UserListAPI(ListAPIView):
     
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-        serializer = self.get_serializer(page, many=True)
-        return Response(self.get_paginated_response(serializer.data))
+        page_param = self.request.query_params.get("page")
+        if page_param:
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return Response(self.get_paginated_response(serializer.data))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
     
 class UserDetailedAPI(APIView):
 
     def get_object(self, pk):
         try:
-            return User.objects.get(pk=pk)
+            return User.objects.get(pk=pk,is_deleted=False)
         except:
             raise Http404
 

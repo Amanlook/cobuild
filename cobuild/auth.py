@@ -39,9 +39,13 @@ class UserLoginAPIView(TokenObtainPairView):
 class CurrentUser(APIView):
     
     def get(self, request, *args, **kwargs):
-        current_user = self.request.user
-        serializer = UserLoginGetSerializer(current_user)
-        return Response(serializer.data)
+        try:
+            current_user = self.request.user
+            serializer = UserLoginGetSerializer(current_user)
+            return Response(serializer.data)
+        except Exception as e:
+             return Response({"success":False,"message":"invalid user"})
+            
     
 class OTPLoginView(TokenObtainPairView, OtpMixin):
     

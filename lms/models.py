@@ -91,6 +91,9 @@ class QuizSection(models.Model):
     number_of_questions = models.IntegerField(default=0)
     marks = models.IntegerField(default=0)
     time = models.IntegerField(default=0) # in seconds
+    is_deleted=models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     class Meta:
         db_table ='quiz_section'
@@ -100,6 +103,9 @@ class SectionQuestion(models.Model):
     question = models.ForeignKey(QuestionBank, on_delete=models.CASCADE, null=True, blank=True)
     marks = models.IntegerField(default=0)
     time = models.IntegerField(default=0) # in seconds
+    is_deleted=models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     class Meta:
         db_table ='section_question'

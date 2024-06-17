@@ -24,4 +24,5 @@ urlpatterns = [
     path('apiV1/current-user/', CurrentUser.as_view()),
     path('apiV1/otp-login/', OTPLoginView.as_view()),
     path('apiV1/user/', include('users.urls')),
+    path("apiV1/lms/",include("lms.urls"))
 ]
