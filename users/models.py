@@ -13,12 +13,12 @@ class Role(models.Model):
 
     SUPERADMIN = 1
     ADMIN = 2
-    SCHOOL_ADMIN = 3
+    USER = 3
 
     ROLE_CHOICES = (
         (SUPERADMIN, 'SUPERADMIN'),
         (ADMIN, 'ADMIN'),
-        (SCHOOL_ADMIN, 'SCHOOL_ADMIN'),
+        (USER, 'USER'),
     )
 
     id = models.PositiveSmallIntegerField(

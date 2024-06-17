@@ -142,3 +142,78 @@ class UserQuizQuestion(models.Model):
     class Meta:
         db_table ='user_quiz_question'
 
+class CourseCategory(models.Model):
+
+    name = models.CharField(max_length=255, null=True, blank=True)
+    status = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+    class Meta:
+        db_table ='course_category'
+
+class Course(models.Model):
+
+    name = models.CharField(max_length=255, null=True, blank=True)
+    category = models.ForeignKey(CourseCategory, on_delete=models.CASCADE, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    image = models.FileField(null=True, blank=True, upload_to='course/')
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+    is_payable = models.BooleanField(default=True)
+    amount = models.FloatField(default=True)
+
+    class Meta:
+        db_table ='course'
+
+class CourseSection(models.Model):
+
+    name = models.CharField(max_length=255, null=True, blank=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+    class Meta:
+        db_table ='course_section'
+
+
+class CourseContent(models.Model):
+
+    course_section = models.ForeignKey(CourseSection, null=True, blank=True, on_delete=models.SET_NULL)
+    decription = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        db_table ='course_content'
+
+class CourseContentFile(models.Model):
+
+    course_content = models.ForeignKey(CourseContent, null=True, blank=True, on_delete=models.SET_NULL)
+    file = models.FileField(null=True, blank=True, upload_to='course_content_file/')
+    status = models.BooleanField(default=True)
+    id_delete = models.BooleanField(default=False)
+
+    class Meta:
+        db_table ='course_content_file'
+
+class CourseEnrollment(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    is_paid = models.BooleanField(default=False)
+
+    class Meta:
+        db_table ='course_enrollment'
