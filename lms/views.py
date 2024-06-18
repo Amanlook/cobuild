@@ -56,21 +56,21 @@ class  SectionDetailed(RetrieveAPIView):
     serializer_class = SectionSerializer
     def get_object(self, pk):
         try:
-            return  Section.objects.get(pk=pk)
+            return  Section.objects.get(pk=pk,is_deleted=False)
         except  Section.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
-        user = self.get_object(pk)
-        serializer =  self.get_serializer(user)
+        inst = self.get_object(pk)
+        serializer =  self.get_serializer(inst)
         return Response(serializer.data)
     
 
     
     def put(self, request, pk, format=None):
-        user = self.get_object(pk)
+        inst= self.get_object(pk)
         serializer = self.get_serializer(
-            user, request.data, partial=True)
+            inst, request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -88,6 +88,7 @@ class SubSectionList(ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = {
         "name" : ["exact"],
+        "section" : ["exact"],
         "created_at" : ["exact", "date__gte", "date__lte"],
         "updated_at" : ["exact", "date__gte", "date__lte"],
         "is_active" : ["exact"],
@@ -115,37 +116,38 @@ class SubSectionList(ListAPIView):
     def post(self, request, format=None):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(status=True)
+            serializer.save()
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class SubSectionDetailed(RetrieveAPIView):
     
     serializer_class = SubSectionSerializer
     def get_object(self, pk):
         try:
-            return  SubSection.objects.get(pk=pk)
+            return  SubSection.objects.get(pk=pk,is_deleted=False)
         except  SubSection.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
         
-        user = self.get_object(pk)
-        serializer =  self.get_serializer(user)
+        inst = self.get_object(pk)
+        serializer =  self.get_serializer(inst)
         return Response(serializer.data)
     
 
     
     def put(self, request, pk, format=None):
-        user = self.get_object(pk)
+        inst= self.get_object(pk)
         serializer = self.get_serializer(
-            user, request.data, partial=True)
+            inst, request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, pk, format=None):
-        
+    
         inst = self.get_object(pk)
         inst.is_deleted=True
         inst.save()
@@ -156,6 +158,7 @@ class QuestionBankList(ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = {
         "question" : ["exact"],
+        "question_type" : ["exact"],
         "created_at" : ["exact", "date__gte", "date__lte"],
         "updated_at" : ["exact", "date__gte", "date__lte"],
         "is_active" : ["exact"],
@@ -183,7 +186,7 @@ class QuestionBankList(ListAPIView):
     def post(self, request, format=None):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(status=True)
+            serializer.save()
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -191,22 +194,22 @@ class QuestionBankDetailed(RetrieveAPIView):
     serializer_class = QuestionBankSerializer
     def get_object(self, pk):
         try:
-            return  QuestionBank.objects.get(pk=pk)
+            return  QuestionBank.objects.get(pk=pk,is_deleted=False)
         except  QuestionBank.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
        
-        user = self.get_object(pk)
-        serializer =  self.get_serializer(user)
+        inst= self.get_object(pk)
+        serializer =  self.get_serializer(inst)
         return Response(serializer.data)
     
 
     
     def put(self, request, pk, format=None):
-        user = self.get_object(pk)
+        inst = self.get_object(pk)
         serializer = self.get_serializer(
-            user, request.data, partial=True)
+            inst, request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -221,13 +224,22 @@ class QuestionBankDetailed(RetrieveAPIView):
     
 
 class OptionList(ListAPIView):
+    
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = {
+        "option" : ["exact"],
+        "question" : ["exact"],
+        "created_at" : ["exact", "date__gte", "date__lte"],
+        "updated_at" : ["exact", "date__gte", "date__lte"],
+        "is_active":["exact"]
+       
+    }
     serializer_class =  OptionSerializer
     renderer_classes = [JSONRenderer]
     pagination_class = PaginationSize20
     
     def get_queryset(self):
-        question=self.request.query_params.get('question', None)
-        queryset =  Option.objects.filter(is_deleted=False,question=question).order_by('-id')
+        queryset =  Option.objects.filter(is_deleted=False).order_by('-id')
         return queryset
     
     def list(self, request, *args, **kwargs):
@@ -244,7 +256,7 @@ class OptionList(ListAPIView):
     def post(self, request, format=None):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(status=True)
+            serializer.save()
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
     
@@ -252,22 +264,22 @@ class OptionDetailed(RetrieveAPIView):
     serializer_class = OptionSerializer
     def get_object(self, pk):
         try:
-            return  Option.objects.get(pk=pk)
+            return  Option.objects.get(pk=pk,is_deleted=False)
         except  Option.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
        
-        user = self.get_object(pk)
-        serializer =  self.get_serializer(user)
+        inst= self.get_object(pk)
+        serializer =  self.get_serializer(inst)
         return Response(serializer.data)
     
 
     
     def put(self, request, pk, format=None):
-        user = self.get_object(pk)
+        inst = self.get_object(pk)
         serializer = self.get_serializer(
-            user, request.data, partial=True)
+            inst, request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -289,6 +301,7 @@ class QuizList(ListAPIView):
         "updated_at" : ["exact", "date__gte", "date__lte"],
         "is_active" : ["exact"],
     }
+    # search_fields = ['name', 'description']
     serializer_class =  QuizSerializer
     renderer_classes = [JSONRenderer]
     pagination_class = PaginationSize20
@@ -319,22 +332,22 @@ class QuizDetailed(RetrieveAPIView):
     serializer_class = QuizSerializer
     def get_object(self, pk):
         try:
-            return  Quiz.objects.get(pk=pk)
+            return  Quiz.objects.get(pk=pk,is_deleted=False)
         except  Quiz.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
        
-        user = self.get_object(pk)
-        serializer =  self.get_serializer(user)
+        inst = self.get_object(pk)
+        serializer =  self.get_serializer(inst)
         return Response(serializer.data)
     
 
     
     def put(self, request, pk, format=None):
-        user = self.get_object(pk)
+        inst= self.get_object(pk)
         serializer = self.get_serializer(
-            user, request.data, partial=True)
+            inst, request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -351,9 +364,9 @@ class QuizSectionList(ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = {
         "quiz" : ["exact"],
+        "section" : ["exact"],
         "created_at" : ["exact", "date__gte", "date__lte"],
         "updated_at" : ["exact", "date__gte", "date__lte"],
-        "is_active" : ["exact"],
     }
     serializer_class =  QuizSectionSerializer
     renderer_classes = [JSONRenderer]
@@ -385,22 +398,22 @@ class QuizSectionDetailed(RetrieveAPIView):
     serializer_class = QuizSectionSerializer
     def get_object(self, pk):
         try:
-            return  QuizSection.objects.get(pk=pk)
+            return  QuizSection.objects.get(pk=pk,is_deleted=False)
         except  QuizSection.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
        
-        user = self.get_object(pk)
-        serializer =  self.get_serializer(user)
+        inst = self.get_object(pk)
+        serializer =  self.get_serializer(inst)
         return Response(serializer.data)
     
 
     
     def put(self, request, pk, format=None):
-        user = self.get_object(pk)
+        inst= self.get_object(pk)
         serializer = self.get_serializer(
-            user, request.data, partial=True)
+            inst, request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -417,11 +430,12 @@ class SectionQuestionList(ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = {
         "section" : ["exact"],
+        "question" : ["exact"],
         "created_at" : ["exact", "date__gte", "date__lte"],
         "updated_at" : ["exact", "date__gte", "date__lte"],
-        "is_active" : ["exact"],
+     
     }
-    serializer_class =SectionQuestion
+    serializer_class =SectionQuestionSerializer
     renderer_classes = [JSONRenderer]
     pagination_class = PaginationSize20
     
@@ -433,12 +447,13 @@ class SectionQuestionList(ListAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         page_param = self.request.query_params.get("page")
+        
         if page_param:
             page = self.paginate_queryset(queryset)
             if page is not None:
                 serializer = self.get_serializer(page, many=True)
                 return Response(self.get_paginated_response(serializer.data))
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.get_serializer(queryset,many=True)
         return Response(serializer.data)
     
     def post(self, request, format=None):
@@ -451,22 +466,21 @@ class SectionQuestionDetailed(RetrieveAPIView):
     serializer_class = SectionQuestionSerializer
     def get_object(self, pk):
         try:
-            return  SectionQuestion.objects.get(pk=pk)
+            return  SectionQuestion.objects.get(pk=pk,is_deleted=False)
         except  SectionQuestion.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
        
-        user = self.get_object(pk)
-        serializer =  self.get_serializer(user)
+        inst = self.get_object(pk)
+        serializer =  self.get_serializer(inst)
         return Response(serializer.data)
     
 
-    
     def put(self, request, pk, format=None):
-        user = self.get_object(pk)
+        inst= self.get_object(pk)
         serializer = self.get_serializer(
-            user, request.data, partial=True)
+            inst, request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -482,6 +496,7 @@ class QuizEnrollmentList(ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = {
         "user" : ["exact"],
+        "quiz" : ["exact"],
         "created_at" : ["exact", "date__gte", "date__lte"],
         "updated_at" : ["exact", "date__gte", "date__lte"],
         "is_active" : ["exact"],
@@ -513,28 +528,26 @@ class QuizEnrollmentList(ListAPIView):
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    
-
 class QuizEnrollmentDetailed(RetrieveAPIView):
     serializer_class = QuizEnrollmentSerializer
     def get_object(self, pk):
         try:
-            return  QuizEnrollment.objects.get(pk=pk)
+            return  QuizEnrollment.objects.get(pk=pk,is_deleted=False)
         except  QuizEnrollment.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
        
-        user = self.get_object(pk)
-        serializer =  self.get_serializer(user)
+        inst = self.get_object(pk)
+        serializer =  self.get_serializer(inst)
         return Response(serializer.data)
     
 
     
     def put(self, request, pk, format=None):
-        user = self.get_object(pk)
+        inst= self.get_object(pk)
         serializer = self.get_serializer(
-            user, request.data, partial=True)
+            inst, request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -550,7 +563,9 @@ class QuizEnrollmentDetailed(RetrieveAPIView):
 class UserQuizQuestionList(ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = {
-         "user" : ["exact"],
+        "user" : ["exact"],
+        "quiz":["exact"],
+        "question":["exact"],
         "created_at" : ["exact", "date__gte", "date__lte"],
         "updated_at" : ["exact", "date__gte", "date__lte"],
         "is_active" : ["exact"],
@@ -588,22 +603,22 @@ class UserQuizQuestionDetailed(RetrieveAPIView):
     serializer_class = UserQuizQuestionSerializer
     def get_object(self, pk):
         try:
-            return  UserQuizQuestion.objects.get(pk=pk)
+            return  UserQuizQuestion.objects.get(pk=pk,is_deleted=False)
         except  UserQuizQuestion.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
        
-        user = self.get_object(pk)
-        serializer =  self.get_serializer(user)
+        inst = self.get_object(pk)
+        serializer =  self.get_serializer(inst)
         return Response(serializer.data)
     
 
     
     def put(self, request, pk, format=None):
-        user = self.get_object(pk)
+        inst = self.get_object(pk)
         serializer = self.get_serializer(
-            user, request.data, partial=True)
+            inst, request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
