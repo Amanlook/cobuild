@@ -21,10 +21,7 @@ class Migration(migrations.Migration):
             name='Role',
             fields=[
 
-                ('id', models.PositiveSmallIntegerField(choices=[(1, 'SUPERADMIN'), (2, 'ADMIN'), (3, 'SCHOOL_ADMIN')], primary_key=True, serialize=False)),
-
                 ('id', models.PositiveSmallIntegerField(choices=[(1, 'SUPERADMIN'), (2, 'ADMIN'), (3, 'USER')], primary_key=True, serialize=False)),
-
                 ('role_name', models.CharField(max_length=100, null=True)),
             ],
         ),
