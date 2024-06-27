@@ -21,6 +21,23 @@ urlpatterns = [
     path("user-quiz-question/",UserQuizQuestionList.as_view()),
     path("user-quiz-question/<pk>/",UserQuizQuestionDetailed.as_view()),
     
+    path("course-category/",CourseCategoryList.as_view()),
+    path("course-category/<pk>/",CourseCategoryDetailed.as_view()),
+    path("course/",CourseList.as_view()),
+    path("course/<pk>/",CourseDetailed.as_view()),
+    path("course-section/",CourseSectionList.as_view()),
+    path("course-section/<pk>/",CourseSectionDetailed.as_view()),
+    path("course-content/",CourseContentList.as_view()),
+    path("course-content/<pk>/",CourseContentDetailed.as_view()),
+    path("course-content-file/",CourseContentFileList.as_view()),
+    path("course-content-file/<pk>/",CourseContentFileDetailed.as_view()),
+    path("course-enrollment/",CourseEnrollmentList.as_view()),
+    path("course-enrollment/<pk>/",CourseEnrollmentDetailed.as_view()),
+    
+    
+    
+    
+    
     
      
 ]

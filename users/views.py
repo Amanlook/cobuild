@@ -16,7 +16,11 @@ from rest_framework.generics import ListAPIView
 
 class UserCreateAPI(APIView):
     permission_classes = [permissions.AllowAny]
+    def get(self,request):
+        return Response({})
+    
     def post(self, request, format=None):
+        print("-----------------------------------------")
         password = request.data.get('password', None)
         if password is None:
             request.data._mutable = True

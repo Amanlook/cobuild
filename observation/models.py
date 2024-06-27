@@ -4,7 +4,6 @@ from users.models import User
 # Create your models here.
 
 class ObservationCategory(models.Model):
-    
     name = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
@@ -41,7 +40,7 @@ class ObservationReport(models.Model):
     observation_category = models.ForeignKey(ObservationCategory, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
-        db_table ='rating'
+        db_table ='observation report'
 
 class ObservationReportKey(models.Model):
 

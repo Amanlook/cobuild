@@ -54,3 +54,40 @@ class UserQuizQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserQuizQuestion
         fields = '__all__'
+
+class CourseCategorySerliazer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseCategory
+        fields = '__all__'
+        
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Course
+        fields = '__all__'
+        
+class CourseSectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CourseSection
+        fields = '__all__'
+
+class CourseContentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CourseContent
+        fields = '__all__'
+
+class CourseContentFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CourseContentFile
+        fields = '__all__'
+
+class CourseEnrollmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CourseEnrollment
+        fields = '__all__'
+
+
+
+
+        
+
+    
