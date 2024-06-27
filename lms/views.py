@@ -48,7 +48,7 @@ class SectionList(ListAPIView):
     def post(self, request, format=None):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(status=True)
+            serializer.save()
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -297,9 +297,16 @@ class QuizList(ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = {
         "name" : ["exact"],
+        "duration": ["exact","lte","gte"],
+        "max_marks" : ["exact","gte","lte"],
+        "passing_marks" : ["exact","gte","lte"],
+        "number_of_questions":["exact","gte","lte"],
         "created_at" : ["exact", "date__gte", "date__lte"],
         "updated_at" : ["exact", "date__gte", "date__lte"],
         "is_active" : ["exact"],
+        "is_free":["exact"],
+        "price" : ["exact","gte","lte"],
+        
     }
     # search_fields = ['name', 'description']
     serializer_class =  QuizSerializer
@@ -629,6 +636,383 @@ class UserQuizQuestionDetailed(RetrieveAPIView):
         inst.is_deleted=True
         inst.save()
         return Response(status=status.HTTP_200_OK)
+    
+    
+    
+
+class CourseCategoryList(ListAPIView):
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    serializer_class = CourseCategorySerliazer
+    renderer_classes = [JSONRenderer]
+    pagination_class = PaginationSize20
+    
+    
+    
+    def get_queryset(self):
+        queryset = CourseCategory.objects.filter().order_by('-id')
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page_param = self.request.query_params.get("page")
+        if page_param:
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return Response(self.get_paginated_response(serializer.data))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class CourseCategoryDetailed(RetrieveAPIView):
+    serializer_class = CourseCategorySerliazer
+    def get_object(self, pk):
+        try:
+            return  CourseCategory.objects.get(pk=pk)
+        except  CourseCategory.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+       
+        inst = self.get_object(pk)
+        serializer =  self.get_serializer(inst)
+        return Response(serializer.data)
+    
+
+    
+    def put(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        serializer = self.get_serializer(
+            inst, request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        inst.is_deleted=True
+        inst.save()
+        return Response(status=status.HTTP_200_OK)
+    
+
+
+class CourseList(ListAPIView):
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    serializer_class = CourseSerializer
+    renderer_classes = [JSONRenderer]
+    pagination_class = PaginationSize20
+    
+    
+    def get_queryset(self):
+        queryset = Course.objects.filter(is_deleted=False).order_by('-id')
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page_param = self.request.query_params.get("page")
+        if page_param:
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return Response(self.get_paginated_response(serializer.data))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class CourseDetailed(RetrieveAPIView):
+    serializer_class = CourseSerializer
+    def get_object(self, pk):
+        try:
+            return  Course.objects.get(pk=pk,is_deleted=False)
+        except  Course.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+       
+        inst = self.get_object(pk)
+        serializer =  self.get_serializer(inst)
+        return Response(serializer.data)
+    
+
+    
+    def put(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        serializer = self.get_serializer(
+            inst, request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        inst.is_deleted=True
+        inst.save()
+        return Response(status=status.HTTP_200_OK)
+    
+    
+class CourseSectionList(ListAPIView):
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    serializer_class = CourseSectionSerializer
+    renderer_classes = [JSONRenderer]
+    pagination_class = PaginationSize20
+    
+    
+    def get_queryset(self):
+        queryset = CourseSection.objects.filter(is_deleted=False).order_by('-id')
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page_param = self.request.query_params.get("page")
+        if page_param:
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return Response(self.get_paginated_response(serializer.data))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CourseSectionDetailed(RetrieveAPIView):
+    serializer_class = CourseSectionSerializer
+    def get_object(self, pk):
+        try:
+            return  CourseSection.objects.get(pk=pk,is_deleted=False)
+        except  CourseSection.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+       
+        inst = self.get_object(pk)
+        serializer =  self.get_serializer(inst)
+        return Response(serializer.data)
+    
+
+    
+    def put(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        serializer = self.get_serializer(
+            inst, request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        inst.is_deleted=True
+        inst.save()
+        return Response(status=status.HTTP_200_OK)
+    
+    
+class CourseContentList(ListAPIView):
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    serializer_class = CourseContentSerializer
+    renderer_classes = [JSONRenderer]
+    pagination_class = PaginationSize20
+    
+    
+    def get_queryset(self):
+        queryset = CourseContent.objects.filter(is_deleted=False).order_by('-id')
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page_param = self.request.query_params.get("page")
+        if page_param:
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return Response(self.get_paginated_response(serializer.data))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CourseContentDetailed(RetrieveAPIView):
+    serializer_class = CourseContentSerializer
+    def get_object(self, pk):
+        try:
+            return  CourseContent.objects.get(pk=pk,is_deleted=False)
+        except  CourseContent.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+       
+        inst = self.get_object(pk)
+        serializer =  self.get_serializer(inst)
+        return Response(serializer.data)
+    
+
+    
+    def put(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        serializer = self.get_serializer(
+            inst, request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        inst.is_deleted=True
+        inst.save()
+        return Response(status=status.HTTP_200_OK)
+
+class CourseContentFileList(ListAPIView):
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    serializer_class = CourseContentFileSerializer
+    renderer_classes = [JSONRenderer]
+    pagination_class = PaginationSize20
+    
+    
+    def get_queryset(self):
+        queryset = CourseContentFile.objects.filter().order_by('-id')
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page_param = self.request.query_params.get("page")
+        if page_param:
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return Response(self.get_paginated_response(serializer.data))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+
+class CourseContentFileDetailed(RetrieveAPIView):
+    serializer_class = CourseContentFileSerializer
+    def get_object(self, pk):
+        try:
+            return  CourseContentFile.objects.get(pk=pk,is_deleted=False)
+        except  CourseContentFile.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+       
+        inst = self.get_object(pk)
+        serializer =  self.get_serializer(inst)
+        return Response(serializer.data)
+    
+
+    
+    def put(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        serializer = self.get_serializer(
+            inst, request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        inst.is_deleted=True
+        inst.save()
+        return Response(status=status.HTTP_200_OK)
+    
+    
+class CourseEnrollmentList(ListAPIView):
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    serializer_class = CourseEnrollmentSerializer
+    renderer_classes = [JSONRenderer]
+    pagination_class = PaginationSize20
+    
+    
+    def get_queryset(self):
+        queryset = CourseEnrollment.objects.filter(is_deleted=False).order_by('-id')
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page_param = self.request.query_params.get("page")
+        if page_param:
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return Response(self.get_paginated_response(serializer.data))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+class CourseEnrollmentDetailed(RetrieveAPIView):
+    serializer_class = CourseEnrollmentSerializer
+    def get_object(self, pk):
+        try:
+            return  CourseEnrollment.objects.get(pk=pk,is_deleted=False)
+        except  CourseEnrollment.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+       
+        inst = self.get_object(pk)
+        serializer =  self.get_serializer(inst)
+        return Response(serializer.data)
+    
+
+    
+    def put(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        serializer = self.get_serializer(
+            inst, request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        inst.is_deleted=True
+        inst.save()
+        return Response(status=status.HTTP_200_OK)
+    
+    
     
 
     
