@@ -34,6 +34,15 @@ urlpatterns = [
     path("course-enrollment/",CourseEnrollmentList.as_view()),
     path("course-enrollment/<pk>/",CourseEnrollmentDetailed.as_view()),
     
+    path("skill/",SkillList.as_view()),
+    path("skill/<pk>",SkillDetailed.as_view()),
+    path("sub-skill/",SubSkillList.as_view()),
+    path("sub-skill/<pk>",SubSkillDetailed.as_view()),
+    
+    path("blooms-taxonomy/",BloomsTaxonomyList.as_view()),
+    path("blooms-taxonomy/<pk>",BloomsTaxonomyDetailed.as_view()),
+    
+    
     
     
     

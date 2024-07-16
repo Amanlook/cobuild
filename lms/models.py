@@ -28,24 +28,66 @@ class SubSection(models.Model):
     class Meta:
         db_table ='sub_section'
 
+class Skill(models.Model):
+    skill=models.CharField(max_length=100,null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+    
+    class Meta:
+            db_table ='skills'
+
+class SubSkill(models.Model):
+    skill=models.ForeignKey(to=Skill,null=True,blank=True,on_delete=models.CASCADE,related_name="sub_skills")
+    sub_skill=models.CharField(max_length=100,null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+
+    
+    class Meta:
+            db_table ='sub_skills'
+    
+
+class BloomsTaxonomy(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+    
 class QuestionBank(models.Model):
 
-    question_type = (
+    QUESTION_TYPE_CHOICE = (
         ('mcq', 'mcq'),
         ('lq', 'lq'),
         ('tf', 'tf'),
         ('sa','sa'),
     )
+    DIFFICULTY_LEVEL=(
+        ('easy', 'easy'),
+        ('medium', 'medium'),
+        ('hard', 'hard'),
+    )
 
-    question_type = models.CharField(max_length=255, choices=question_type, null=True, blank=True)
+    question_type = models.CharField(max_length=255, choices=QUESTION_TYPE_CHOICE, null=True, blank=True)
     question = models.TextField(null=True, blank=True)
     sub_section = models.ForeignKey(SubSection, on_delete=models.CASCADE, null=True, blank=True)
     marks = models.IntegerField(default=0)
     time = models.IntegerField(default=0) # in seconds
+    difficulty_level=models.CharField(default="easy", choices=DIFFICULTY_LEVEL,max_length=100)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
+    skills=models.ManyToManyField(Skill)
+    sub_skills=models.ManyToManyField(SubSkill)
+    blooms_taxonomy=models.ManyToManyField(BloomsTaxonomy)
 
     class Meta:
         db_table ='question_bank'
@@ -127,7 +169,6 @@ class QuizEnrollment(models.Model):
         db_table ='section_enrollment'
 
 class UserQuizQuestion(models.Model):
-    
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, null=True, blank=True)
     question = models.ForeignKey(QuestionBank, on_delete=models.CASCADE, null=True, blank=True)

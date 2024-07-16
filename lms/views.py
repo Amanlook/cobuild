@@ -154,6 +154,196 @@ class SubSectionDetailed(RetrieveAPIView):
         return Response(status=status.HTTP_200_OK)
     
 
+class SkillList(ListAPIView):
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    serializer_class =  SkillSerializer
+    renderer_classes = [JSONRenderer]
+    pagination_class = PaginationSize20
+    
+    
+    def get_queryset(self):
+        queryset =  Skill.objects.filter(is_deleted=False).order_by('-id')
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page_param = self.request.query_params.get("page")
+        if page_param:
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return Response(self.get_paginated_response(serializer.data))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class SkillDetailed(RetrieveAPIView):
+    serializer_class = SkillSerializer
+    def get_object(self, pk):
+        try:
+            return  Skill.objects.get(pk=pk,is_deleted=False)
+        except Skill.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+       
+        inst= self.get_object(pk)
+        serializer =  self.get_serializer(inst)
+        return Response(serializer.data)
+    
+
+    
+    def put(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        serializer = self.get_serializer(
+            inst, request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+      
+        inst = self.get_object(pk)
+        inst.is_deleted=True
+        inst.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+class SubSkillList(ListAPIView):
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    serializer_class =  SubSkillSerializer
+    renderer_classes = [JSONRenderer]
+    pagination_class = PaginationSize20
+    
+    
+    def get_queryset(self):
+        queryset =  SubSkill.objects.filter(is_deleted=False).order_by('-id')
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page_param = self.request.query_params.get("page")
+        if page_param:
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return Response(self.get_paginated_response(serializer.data))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class SubSkillDetailed(RetrieveAPIView):
+    serializer_class = SubSkillSerializer
+    def get_object(self, pk):
+        try:
+            return  SubSkill.objects.get(pk=pk,is_deleted=False)
+        except SubSkill.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+       
+        inst= self.get_object(pk)
+        serializer =  self.get_serializer(inst)
+        return Response(serializer.data)
+    
+
+    
+    def put(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        serializer = self.get_serializer(
+            inst, request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+      
+        inst = self.get_object(pk)
+        inst.is_deleted=True
+        inst.save()
+        return Response(status=status.HTTP_200_OK)
+    
+
+
+class BloomsTaxonomyList(ListAPIView):
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    serializer_class =  BloomsTaxonomySerializer
+    renderer_classes = [JSONRenderer]
+    pagination_class = PaginationSize20
+    
+    
+    def get_queryset(self):
+        queryset =  BloomsTaxonomy.objects.filter(is_deleted=False).order_by('-id')
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page_param = self.request.query_params.get("page")
+        if page_param:
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return Response(self.get_paginated_response(serializer.data))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class BloomsTaxonomyDetailed(RetrieveAPIView):
+    serializer_class = BloomsTaxonomySerializer
+    def get_object(self, pk):
+        try:
+            return  BloomsTaxonomy.objects.get(pk=pk,is_deleted=False)
+        except BloomsTaxonomy.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+       
+        inst= self.get_object(pk)
+        serializer =  self.get_serializer(inst)
+        return Response(serializer.data)
+    
+
+    
+    def put(self, request, pk, format=None):
+        inst = self.get_object(pk)
+        serializer = self.get_serializer(
+            inst, request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+      
+        inst = self.get_object(pk)
+        inst.is_deleted=True
+        inst.save()
+        return Response(status=status.HTTP_200_OK)
+    
+
+
+
+
 class QuestionBankList(ListAPIView):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = {

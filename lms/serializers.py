@@ -13,6 +13,23 @@ class SubSectionSerializer(serializers.ModelSerializer):
         model = SubSection
         fields = '__all__'
 
+class SkillSerializer(serializers.ModelSerializer):
+       class Meta:
+            model = Skill
+            fields = '__all__'
+
+class SubSkillSerializer(serializers.ModelSerializer):
+       class Meta:
+            model = SubSkill
+            fields = '__all__'
+
+class BloomsTaxonomySerializer(serializers.ModelSerializer):
+       class Meta:
+            model =BloomsTaxonomy
+            fields = '__all__'
+    
+    
+    
 class QuestionBankSerializer(serializers.ModelSerializer):
 
     class Meta:
